@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <!--数据库驱动-->
+    <classPathEntry location="D:\Maven\repo\mysql\mysql-connector-java\5.1.38\mysql-connector-java-5.1.38.jar"/>
+
+    <context id="mybatis-generator-mysql" targetRuntime="MyBatis3">
+        <!--数据库链接地址账号密码-->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/fund"
+                        userId="qaomni" password="Vy7TCnNu5cyF-FJa" />
+
+        <!--生成Model类存放位置-->
+        <javaModelGenerator targetPackage="com.leo.dal.object" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!--生成映射文件存放位置-->
+        <sqlMapGenerator targetPackage="com.leo.dal.mapper" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+         <!--生成Dao类存放位置-->
+        <!--<javaClientGenerator type="XMLMAPPER" targetPackage="com.leo.dal" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>-->
+
+        <table tableName="hf_compensatory_info_object" domainObjectName="HFCompensatoryInfoObject">
+            <generatedKey column="ID" sqlStatement="MySql" identity="true" />
+        </table>
+
+    </context>
+</generatorConfiguration>

@@ -33,7 +33,7 @@
         <!--</constructor-arg>-->
     <!--</bean>-->
     <!--&lt;!&ndash; 读取properties &ndash;&gt;-->
-    <!--<bean class="com.diwa.util.ConfigUtils">-->
+    <!--<bean clacom.leoiwa.util.ConfigUtils">-->
         <!--<property name="ignoreResourceNotFound" value="true"/>-->
         <!--<property name="locations" ref="propertyResources"/>-->
     <!--</bean>-->

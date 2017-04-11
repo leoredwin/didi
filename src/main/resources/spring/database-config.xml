@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
   		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   		http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd" >
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
 
 
     <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
           destroy-method="close">
         <property name="driverClass">
-            <value>${db.driver}</value>
+            <value>${database.driverClassName}</value>
         </property>
         <property name="jdbcUrl">
-            <value>${db.url}</value>
+            <value>${database.url}</value>
         </property>
         <property name="user">
-            <value>${db.username}</value>
+            <value>${database.username}</value>
         </property>
         <property name="password">
-            <value>${db.password}</value>
+            <value>${database.password}</value>
         </property>
         <!--连接池中保留的最小连接数。 -->
         <property name="minPoolSize" value="30"/>
@@ -40,30 +40,21 @@
         <property name="testConnectionOnCheckout" value="true"/>
     </bean>
 
-    <!-- spring和MyBatis，不需要mybatis的配置映射文件 -->
-    <!--<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-        <!--<property name="dataSource" ref="dataSource"/>-->
-        <!--<property name="mapperLoca  tions" value="classpath:com/diwa/**/mapper/*.xml"/>-->
-    <!--</bean>-->
-
-    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">-->
-        <!--<property name="basePackage" value="com.diwa.**.model"/>-->
-    <!--</bean>-->
-
     <bean id="orderDataMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="com.diwa.orderdata.mapper.OrderDataMapper" />
+        <property name="mapperInterface" value="com.leo.orderdata.mapper.OrderDataMapper" />
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
 
     <!-- spring和MyBatis，不需要mybatis的配置映射文件 -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
-        <property name="mapperLocations" value="classpath:com/diwa/**/mapper/*.xml"/>
-        <property name="typeAliasesPackage" value="com.diwa.**.model"/>
+        <property name="mapperLocations" value="classpath:com/leo/dal/mapper/*.xml"/>
+        <property name="typeAliasesPackage" value="com.leo.dal.object"/>
     </bean>
 
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.diwa.**.mapper" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="basePackage" value="com.leo.dal" />
     </bean>
     
 </beans>
