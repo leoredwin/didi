@@ -9,7 +9,7 @@
     <context id="mybatis-generator-mysql" targetRuntime="MyBatis3">
         <!--数据库链接地址账号密码-->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://127.0.0.1:3306/fund"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/dev_fund_bh"
                         userId="qaomni" password="Vy7TCnNu5cyF-FJa" />
 
         <!--生成Model类存放位置-->
@@ -28,7 +28,7 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>-->
 
-        <table tableName="hf_compensatory_info_object" domainObjectName="HFCompensatoryInfoObject">
+        <table tableName="bh_loan_object" domainObjectName="BHLoanObject">
             <generatedKey column="ID" sqlStatement="MySql" identity="true" />
         </table>
 

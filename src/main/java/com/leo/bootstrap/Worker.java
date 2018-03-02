@@ -20,7 +20,7 @@ public abstract class Worker<D, P> implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(BuildWithholding.WithholdWork.class);
 
     private D dao;  //PO的dao
-    private String methodName = "insert";  //对应dao的方法 默认insert
+    private String methodName = "insertBatch";  //对应dao的方法 默认insert
     private String path;    //文件路径
     private TransLineFunction<P> transLineFunction;     //将文件的一行, 变成一个PO的方法
 

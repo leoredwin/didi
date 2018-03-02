@@ -9,6 +9,13 @@ import java.util.Date;
  */
 public class PaymentModel implements Serializable {
 
+    /**
+     * serialVersionUID:TODO
+     *
+     * @since 1.0.0
+     */
+
+    private static final long serialVersionUID = 5654232097141712903L;
     private static final int NO_LENDING = 0;
     private static final int HAS_BEEN_LENDING = 1;
     private static final int OVERDUE = 2;
@@ -29,27 +36,7 @@ public class PaymentModel implements Serializable {
     private BigDecimal amount;
     private byte repayments;
     private Date payDate;
-
-    @Override
-    public String toString() {
-        return
-                "{" +
-                        "\"" + "loanNo" + "\"" + ":" + "\"" + loanNo + "\"" + "," +
-                        "\"" + "appId" + "\"" + ":" + "\"" + appId + "\"" + "," +
-                        "\"" + "paymentFundId" + "\"" + ":" + "\"" + paymentFundId + "\"" + "," +
-                        "\"" + "status" + "\"" + ":" + "\"" + status + "\"" + "," +
-                        "\"" + "userId" + "\"" + ":" + "\"" + userId + "\"" + "," +
-                        "\"" + "userName" + "\"" + ":" + "\"" + userName + "\"" + "," +
-                        "\"" + "idCard" + "\"" + ":" + "\"" + idCard + "\"" + "," +
-                        "\"" + "phone" + "\"" + ":" + "\"" + phone + "\"" + "," +
-                        "\"" + "bankAccount" + "\"" + ":" + "\"" + bankAccount + "\"" + "," +
-                        "\"" + "bankName" + "\"" + ":" + "\"" + bankName + "\"" + "," +
-                        "\"" + "bankCode" + "\"" + ":" + "\"" + bankCode + "\"" + "," +
-                        "\"" + "amount" + "\"" + ":" + "\"" + amount + "\"" + "," +
-                        "\"" + "repayments" + "\"" + ":" + "\"" + repayments + "\"" + "," +
-                        "\"" + "payDate" + "\"" + ":" + payDate +
-                        '}';
-    }
+    private String extensionInfo;//扩展字段
 
     public String getLoanNo() {
         return loanNo;
@@ -162,4 +149,35 @@ public class PaymentModel implements Serializable {
     public void setPayDate(Date payDate) {
         this.payDate = payDate;
     }
+
+    public String getExtensionInfo() {
+        return extensionInfo;
+    }
+
+    public void setExtensionInfo(String extensionInfo) {
+        this.extensionInfo = extensionInfo;
+    }
+
+    @Override
+    public String toString() {
+        return
+                "{" +
+                        "\"" + "loanNo" + "\"" + ":" + "\"" + loanNo + "\"" + "," +
+                        "\"" + "appId" + "\"" + ":" + "\"" + appId + "\"" + "," +
+                        "\"" + "paymentFundId" + "\"" + ":" + "\"" + paymentFundId + "\"" + "," +
+                        "\"" + "status" + "\"" + ":" + "\"" + status + "\"" + "," +
+                        "\"" + "userId" + "\"" + ":" + "\"" + userId + "\"" + "," +
+                        "\"" + "userName" + "\"" + ":" + "\"" + userName + "\"" + "," +
+                        "\"" + "idCard" + "\"" + ":" + "\"" + idCard + "\"" + "," +
+                        "\"" + "phone" + "\"" + ":" + "\"" + phone + "\"" + "," +
+                        "\"" + "bankAccount" + "\"" + ":" + "\"" + bankAccount + "\"" + "," +
+                        "\"" + "bankName" + "\"" + ":" + "\"" + bankName + "\"" + "," +
+                        "\"" + "bankCode" + "\"" + ":" + "\"" + bankCode + "\"" + "," +
+                        "\"" + "amount" + "\"" + ":" + "\"" + amount + "\"" + "," +
+                        "\"" + "repayments" + "\"" + ":" + "\"" + repayments + "\"" + "," +
+                        "\"" + "payDate" + "\"" + ":" + payDate +
+                        '}';
+    }
+
+
 }

@@ -22,10 +22,12 @@ public class BuildWithholding {
     private static final String payment_url = "' http://localhost:8199//fund/payment";
     private static final String credit_url = "' http://localhost:8082/CreditAccount/creditFundCancel";
     private static final String sing_url = "' http://localhost:8120/accounting/sign";
+    private static final String bohai_url = "' http://localhost:8210/fund/bh/payment/apiRisk";
     private static final String SELF_JD = "2CFA6C89-901A-4AB5-BB01-4B5E3B28922F";
     private static final String JD = "AE1EEB3E-4A3C-451A-93D5-A261EB4CCC75";
     private static final String HF = "51C4B39C-AD3D-4FFF-BAF5-B5E1A7625EB8";
     private static final String dingding_robot_url = "https://oapi.dingtalk.com/robot/send?access_token=a27ab5e7e4eea94def01fa97bd1411496b686c8d503b5190c5059c8cd93efe67";
+    private static final String myurl = "' http://localhost:8120/accounting/normal-repayment";
     private static SimpleDateFormat ymd = new SimpleDateFormat("yyyy-MM-dd");
 
 
@@ -39,6 +41,12 @@ public class BuildWithholding {
     private static final List<String> list1 = new ArrayList<>();
     private static final List<String> list2 = new ArrayList<>();
     private static final List<String> list3 = new ArrayList<>();
+    private static final List<String> handleFileList = new ArrayList<>();
+    private static final List<MyModel> myModelList = new ArrayList<>();
+    private static final List<String> handleFileSet = new ArrayList<>();
+    private static final List<TopModel> findCity = new ArrayList<>();
+    private static final List<String> handleFileSet1 = new ArrayList<>();
+    private static final Set<String> distinct = new HashSet<>();
     private static final Set<String> set = new HashSet<>();
     private static final List<String> credit_files = new ArrayList<>(Arrays.asList(
             "C:\\Users\\niushw\\Desktop\\work\\2017-02-10\\1.15",
@@ -70,9 +78,113 @@ public class BuildWithholding {
 //        compareFile();
 //        System.out.println(line);
 
-//        payment();
+        payment();
 
-        chargeSuccess();
+//        chargeSuccess();
+
+        //渤海同步接口
+//        bohaiApiRisk();
+
+        //处理文件
+//        handleFile();
+
+        //去重
+//        distinct();
+
+        //查找空city
+//        findCity();
+
+    }
+
+    private static void findCity() {
+        getOrderDataFilePath().stream().forEach(path -> new FindCity(path).run());
+        try {
+            String path = "C:\\Users\\niushw\\Desktop\\city_null.txt";
+            File file = new File(path);
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+            int k = 0;
+            for (TopModel topModel : findCity) {
+                k++;
+                if (topModel.getAreaMap() == null) {
+                    String data = k + "\r\n";
+                    try {
+                        bufferedWriter.write(data);
+                        bufferedWriter.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void distinct() {
+        getOrderDataFilePath().stream().forEach(path -> new Distinct(path).run());
+        try {
+            String path = "C:\\Users\\niushw\\Desktop\\appId_comp_distinct.txt";
+            writeFile(distinct, path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void handleFile() {
+        getOrderDataFilePath1().stream().forEach(path -> new HandleFile1(path).run());
+        Map map = new HashMap();
+        handleFileSet1.stream().forEach(appId -> {
+            String value = (String) map.get(appId);
+            if (value != null) {
+                handleFileSet.add(appId);
+            } else {
+                map.put(appId, appId);
+            }
+        });
+        String path = "C:\\Users\\niushw\\Desktop\\failData.txt";
+        File file = new File(path);
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fileWritter = new FileWriter(file, true);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWritter);
+            bufferedWriter.write(handleFileSet.toString());
+            bufferedWriter.flush();
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void writeFile(Set<String> appIds, String path) throws IOException {
+        File file = new File(path);
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+        appIds.stream().forEach(appId -> {
+            String data = appId + "\r\n";
+            try {
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        bufferedWriter.close();
+    }
+
+    private static void bohaiApiRisk() {
+        CustomerAuditModel customerAuditModel = new CustomerAuditModel();
+        LoanAccount loanAccount = new LoanAccount();
+        LoanUser loanUser = new LoanUser();
+        loanAccount.setPutoutAccountNo("6212261202005964860");
+        loanUser.setCertId("210104198708204022");
+        loanUser.setCustomerName("佟丹宁");
+        loanUser.setPhone("17721000193");
+        customerAuditModel.setLoanUser(loanUser);
+        customerAuditModel.setLoanAccount(loanAccount);
+        System.out.println(JSONUtil.toJSONString(customerAuditModel));
+
     }
 
     private static void getDuplicaList() {
@@ -148,7 +260,7 @@ public class BuildWithholding {
 
     private static void payment() {
         getOrderDataFilePath().stream().forEach(path -> new Payment(path).run());
-        String path = "C:\\Users\\niushw\\Desktop\\work\\2017-02-20\\payment_batch_10_jd.sh";
+        String path = "C:\\Users\\niushw\\Desktop\\payment.sh";
         File file = new File(path);
         try {
             if (!file.exists()) {
@@ -170,7 +282,7 @@ public class BuildWithholding {
     private static void chargeSuccess() {
         getOrderDataFilePath().stream().forEach(path -> new ChargeSuccessUtil(path).run());
         BigDecimal totalAmount = BigDecimal.ZERO;
-        for (ChargeSuccessModel chargeSuccessModel:chargeSuccessModels){
+        for (ChargeSuccessModel chargeSuccessModel : chargeSuccessModels) {
             totalAmount = totalAmount.add(chargeSuccessModel.getRealBuckleAmount());
         }
         String data = CreateFile.createFile(chargeSuccessModels, ChargeSuccessModel.class, totalAmount);
@@ -180,7 +292,7 @@ public class BuildWithholding {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"GBK"));
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "GBK"));
             bufferedWriter.write(data);
             bufferedWriter.flush();
             bufferedWriter.close();
@@ -288,7 +400,13 @@ public class BuildWithholding {
 
     public static List<String> getOrderDataFilePath() {
         return new ArrayList<>(Arrays.asList(
-                "C:\\Users\\niushw\\Desktop\\work\\2017-02-22\\20170222-代偿后还款第一批数据截止0220.xlsx"
+                "C:\\Users\\niushw\\Desktop\\新建文本文档.txt"
+        ));
+    }
+
+    public static List<String> getOrderDataFilePath1() {
+        return new ArrayList<>(Arrays.asList(
+                "C:\\Users\\niushw\\Desktop\\服务费负值.txt"
         ));
     }
 
@@ -447,25 +565,7 @@ public class BuildWithholding {
                     new TransLineFunction<PaymentModel>() {
                         @Override
                         PaymentModel deal(String line) {
-                            String[] split = cutData(line);
-                            if (split != null) {
-                                PaymentModel paymentModel = new PaymentModel();
-                                paymentModel.setAppId(split[1]);
-                                paymentModel.setUserId(split[2]);
-                                paymentModel.setAmount(new BigDecimal(split[9]));
-                                paymentModel.setRepayments(Byte.parseByte(split[10]));
-                                paymentModel.setPhone(split[5]);
-                                paymentModel.setPaymentFundId(JD);
-                                paymentModel.setUserName(split[3]);
-                                paymentModel.setIdCard(split[4]);
-                                paymentModel.setBankCode(split[8]);
-                                paymentModel.setBankName(split[7]);
-                                paymentModel.setBankAccount(split[6]);
-                                paymentModel.setPayDate(new Date());
-                                return paymentModel;
-                            } else {
-                                return null;
-                            }
+                                return JSONUtil.jsonToObject(line.trim(), PaymentModel.class);
                         }
                     },
                     new WorkDetail<PaymentModel>() {
@@ -552,6 +652,158 @@ public class BuildWithholding {
             } catch (Exception e) {
                 System.out.println(e);
             }
+        }
+    }
+
+    static class HandleFile implements Runnable {
+
+        private String path;
+
+        public HandleFile(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public void run() {
+
+            try {
+                renameFile(path);
+            } catch (Exception e) {
+                System.out.print(e);
+            }
+        }
+
+        private void renameFile(String localFileName) {
+            new FilesWorker<String>(
+                    localFileName,
+                    new TransLineFunction<String>() {
+                        @Override
+                        String deal(String line) {
+                            return line.trim();
+                        }
+                    },
+                    new WorkDetail<String>() {
+                        @Override
+                        void work(String appId) {
+                            handleFileSet.add(appId);
+                        }
+                    }
+            ) {
+            }.run();
+        }
+    }
+
+    static class HandleFile1 implements Runnable {
+
+        private String path;
+
+        public HandleFile1(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public void run() {
+
+            try {
+                renameFile(path);
+            } catch (Exception e) {
+                System.out.print(e);
+            }
+        }
+
+        private void renameFile(String localFileName) {
+            new FilesWorker<String>(
+                    localFileName,
+                    new TransLineFunction<String>() {
+                        @Override
+                        String deal(String line) {
+                            return line.trim();
+                        }
+                    },
+                    new WorkDetail<String>() {
+                        @Override
+                        void work(String appId) {
+                            handleFileSet1.add(appId);
+                        }
+                    }
+            ) {
+            }.run();
+        }
+    }
+
+    static class FindCity implements Runnable {
+
+        private String path;
+
+        public FindCity(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public void run() {
+
+            try {
+                renameFile(path);
+            } catch (Exception e) {
+                System.out.print(e);
+            }
+        }
+
+        private void renameFile(String localFileName) {
+            new FilesWorker<TopModel>(
+                    localFileName,
+                    new TransLineFunction<TopModel>() {
+                        @Override
+                        TopModel deal(String line) {
+                            return JSONUtil.jsonToObject(line.trim(), TopModel.class);
+                        }
+                    },
+                    new WorkDetail<TopModel>() {
+                        @Override
+                        void work(TopModel topModel) {
+                            findCity.add(topModel);
+                        }
+                    }
+            ) {
+            }.run();
+        }
+    }
+
+    static class Distinct implements Runnable {
+
+        private String path;
+
+        public Distinct(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public void run() {
+
+            try {
+                renameFile(path);
+            } catch (Exception e) {
+                System.out.print(e);
+            }
+        }
+
+        private void renameFile(String localFileName) {
+            new FilesWorker<String>(
+                    localFileName,
+                    new TransLineFunction<String>() {
+                        @Override
+                        String deal(String line) {
+                            return line.trim();
+                        }
+                    },
+                    new WorkDetail<String>() {
+                        @Override
+                        void work(String appId) {
+                            distinct.add(appId);
+                        }
+                    }
+            ) {
+            }.run();
         }
     }
 
