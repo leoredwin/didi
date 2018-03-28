@@ -382,17 +382,16 @@ public class BuildWithholding {
                 file.createNewFile();
             }
             FileWriter fileWritter = new FileWriter(file, true);
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWritter);
+
             acctFundCancelResps1.stream().forEach(data -> {
                 data = data + "\r\n";
-                try {
+                try (BufferedWriter bufferedWriter = new BufferedWriter(fileWritter)) {
                     bufferedWriter.write(data);
+                    bufferedWriter.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
-            bufferedWriter.flush();
-            bufferedWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -465,25 +464,19 @@ public class BuildWithholding {
     public static void compater(String path) {
         new FilesWorker<BatchChargeRequest>(
                 path,
-                new TransLineFunction<BatchChargeRequest>() {
-                    @Override
-                    BatchChargeRequest deal(String line) {
-                        String[] split = cutData(line);
-                        if (split != null) {
-                            list1.add(split[0]);
-                            if (split.length > 1 && !split[1].equals("k\t")) {
-                                list2.add(split[1]);
-                            }
-                            return new BatchChargeRequest();
-                        } else {
-                            return null;
+                line -> {
+                    String[] split = cutData(line);
+                    if (split != null) {
+                        list1.add(split[0]);
+                        if (split.length > 1 && !split[1].equals("k\t")) {
+                            list2.add(split[1]);
                         }
+                        return new BatchChargeRequest();
+                    } else {
+                        return null;
                     }
                 },
-                new WorkDetail<BatchChargeRequest>() {
-                    @Override
-                    void work(BatchChargeRequest batchChargeRequest) {
-                    }
+                batchChargeRequest -> {
                 }
         ) {
         }.run();
@@ -513,29 +506,21 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<BatchChargeRequest>(
                     localFileName,
-                    new TransLineFunction<BatchChargeRequest>() {
-                        @Override
-                        BatchChargeRequest deal(String line) {
-                            String[] split = cutData(line);
-                            if (split != null) {
-                                BatchChargeRequest batchChargeRequest = new BatchChargeRequest();
-                                batchChargeRequest.setAppId(split[0]);
-                                batchChargeRequest.setUserId(split[1]);
-                                batchChargeRequest.setFundId(fundSource);
-                                batchChargeRequest.setOperator("fund");
-                                batchChargeRequest.setAppType(10);
-                                return batchChargeRequest;
-                            } else {
-                                return null;
-                            }
+                    line -> {
+                        String[] split = cutData(line);
+                        if (split != null) {
+                            BatchChargeRequest batchChargeRequest = new BatchChargeRequest();
+                            batchChargeRequest.setAppId(split[0]);
+                            batchChargeRequest.setUserId(split[1]);
+                            batchChargeRequest.setFundId(fundSource);
+                            batchChargeRequest.setOperator("fund");
+                            batchChargeRequest.setAppType(10);
+                            return batchChargeRequest;
+                        } else {
+                            return null;
                         }
                     },
-                    new WorkDetail<BatchChargeRequest>() {
-                        @Override
-                        void work(BatchChargeRequest batchChargeRequest) {
-                            batchChargeRequestList.add(batchChargeRequest);
-                        }
-                    }
+                    batchChargeRequest -> batchChargeRequestList.add(batchChargeRequest)
             ) {
             }.run();
         }
@@ -562,18 +547,8 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<PaymentModel>(
                     localFileName,
-                    new TransLineFunction<PaymentModel>() {
-                        @Override
-                        PaymentModel deal(String line) {
-                                return JSONUtil.jsonToObject(line.trim(), PaymentModel.class);
-                        }
-                    },
-                    new WorkDetail<PaymentModel>() {
-                        @Override
-                        void work(PaymentModel batchChargeRequest) {
-                            paymentModels.add(batchChargeRequest);
-                        }
-                    }
+                    line -> JSONUtil.jsonToObject(line.trim(), PaymentModel.class),
+                    batchChargeRequest -> paymentModels.add(batchChargeRequest)
             ) {
             }.run();
         }
@@ -676,18 +651,8 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<String>(
                     localFileName,
-                    new TransLineFunction<String>() {
-                        @Override
-                        String deal(String line) {
-                            return line.trim();
-                        }
-                    },
-                    new WorkDetail<String>() {
-                        @Override
-                        void work(String appId) {
-                            handleFileSet.add(appId);
-                        }
-                    }
+                    line -> line.trim(),
+                    appId -> handleFileSet.add(appId)
             ) {
             }.run();
         }
@@ -714,18 +679,8 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<String>(
                     localFileName,
-                    new TransLineFunction<String>() {
-                        @Override
-                        String deal(String line) {
-                            return line.trim();
-                        }
-                    },
-                    new WorkDetail<String>() {
-                        @Override
-                        void work(String appId) {
-                            handleFileSet1.add(appId);
-                        }
-                    }
+                    line -> line.trim(),
+                    appId -> handleFileSet1.add(appId)
             ) {
             }.run();
         }
@@ -752,18 +707,8 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<TopModel>(
                     localFileName,
-                    new TransLineFunction<TopModel>() {
-                        @Override
-                        TopModel deal(String line) {
-                            return JSONUtil.jsonToObject(line.trim(), TopModel.class);
-                        }
-                    },
-                    new WorkDetail<TopModel>() {
-                        @Override
-                        void work(TopModel topModel) {
-                            findCity.add(topModel);
-                        }
-                    }
+                    line -> JSONUtil.jsonToObject(line.trim(), TopModel.class),
+                    topModel -> findCity.add(topModel)
             ) {
             }.run();
         }
@@ -790,18 +735,8 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<String>(
                     localFileName,
-                    new TransLineFunction<String>() {
-                        @Override
-                        String deal(String line) {
-                            return line.trim();
-                        }
-                    },
-                    new WorkDetail<String>() {
-                        @Override
-                        void work(String appId) {
-                            distinct.add(appId);
-                        }
-                    }
+                    line -> line.trim(),
+                    appId -> distinct.add(appId)
             ) {
             }.run();
         }
@@ -828,37 +763,29 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<SignRequest>(
                     localFileName,
-                    new TransLineFunction<SignRequest>() {
-                        @Override
-                        SignRequest deal(String line) {
-                            String[] split = cutData(line);
-                            if (split != null) {
-                                SignRequest signRequest = new SignRequest();
-                                signRequest.setUserId(split[0]);
-                                signRequest.setAccessor("Fund");
-                                signRequest.setChannelCode("");
-                                signRequest.setIdName(split[1]);
-                                signRequest.setIdCard(split[2]);
-                                signRequest.setPhone(split[3]);
-                                signRequest.setBankAccount(split[4]);
-                                signRequest.setBankName(split[5]);
-                                signRequest.setBankCode(split[6]);
-                                signRequest.setMemo("fund-Base");
-                                signRequest.setExtensionInfo("");
-                                signRequest.setOperatorId("resign20170210");
-                                signRequest.setFundId(SELF_JD);
-                                return signRequest;
-                            } else {
-                                return null;
-                            }
+                    line -> {
+                        String[] split = cutData(line);
+                        if (split != null) {
+                            SignRequest signRequest = new SignRequest();
+                            signRequest.setUserId(split[0]);
+                            signRequest.setAccessor("Fund");
+                            signRequest.setChannelCode("");
+                            signRequest.setIdName(split[1]);
+                            signRequest.setIdCard(split[2]);
+                            signRequest.setPhone(split[3]);
+                            signRequest.setBankAccount(split[4]);
+                            signRequest.setBankName(split[5]);
+                            signRequest.setBankCode(split[6]);
+                            signRequest.setMemo("fund-Base");
+                            signRequest.setExtensionInfo("");
+                            signRequest.setOperatorId("resign20170210");
+                            signRequest.setFundId(SELF_JD);
+                            return signRequest;
+                        } else {
+                            return null;
                         }
                     },
-                    new WorkDetail<SignRequest>() {
-                        @Override
-                        void work(SignRequest signRequest) {
-                            signRequestList.add(signRequest);
-                        }
-                    }
+                    signRequest -> signRequestList.add(signRequest)
             ) {
             }.run();
         }
@@ -885,27 +812,19 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<ACCTFundCancelReq>(
                     localFileName,
-                    new TransLineFunction<ACCTFundCancelReq>() {
-                        @Override
-                        ACCTFundCancelReq deal(String line) {
-                            if (line != null) {
-                                ACCTFundCancelReq acctFundCancelReq = new ACCTFundCancelReq();
-                                acctFundCancelReq.setOriginRequestId(line);
-                                acctFundCancelReq.setRequestId(UUID.randomUUID().toString());
-                                acctFundCancelReq.setAccessor("fund-repair");
-                                acctFundCancelReq.setSignature("88888");
-                                return acctFundCancelReq;
-                            } else {
-                                return null;
-                            }
+                    line -> {
+                        if (line != null) {
+                            ACCTFundCancelReq acctFundCancelReq = new ACCTFundCancelReq();
+                            acctFundCancelReq.setOriginRequestId(line);
+                            acctFundCancelReq.setRequestId(UUID.randomUUID().toString());
+                            acctFundCancelReq.setAccessor("fund-repair");
+                            acctFundCancelReq.setSignature("88888");
+                            return acctFundCancelReq;
+                        } else {
+                            return null;
                         }
                     },
-                    new WorkDetail<ACCTFundCancelReq>() {
-                        @Override
-                        void work(ACCTFundCancelReq acctFundCancelReq) {
-                            acctFundCancelReqs.add(acctFundCancelReq);
-                        }
-                    }
+                    acctFundCancelReq -> acctFundCancelReqs.add(acctFundCancelReq)
             ) {
             }.run();
         }
@@ -932,22 +851,14 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<ACCTFundCancelResp>(
                     localFileName,
-                    new TransLineFunction<ACCTFundCancelResp>() {
-                        @Override
-                        ACCTFundCancelResp deal(String line) {
-                            if (line != null) {
-                                return JSONUtil.jsonToObject(line, ACCTFundCancelResp.class);
-                            } else {
-                                return null;
-                            }
+                    line -> {
+                        if (line != null) {
+                            return JSONUtil.jsonToObject(line, ACCTFundCancelResp.class);
+                        } else {
+                            return null;
                         }
                     },
-                    new WorkDetail<ACCTFundCancelResp>() {
-                        @Override
-                        void work(ACCTFundCancelResp acctFundCancelReq) {
-                            acctFundCancelResps.add(acctFundCancelReq);
-                        }
-                    }
+                    acctFundCancelReq -> acctFundCancelResps.add(acctFundCancelReq)
             ) {
             }.run();
         }
@@ -974,23 +885,17 @@ public class BuildWithholding {
         private void renameFile(String localFileName) {
             new FilesWorker<ACCTFundCancelReq>(
                     localFileName,
-                    new TransLineFunction<ACCTFundCancelReq>() {
-                        @Override
-                        ACCTFundCancelReq deal(String line) {
-                            if (line != null && !line.equalsIgnoreCase("sleep 1")) {
-                                line = line.substring(head.length(), line.indexOf("}") + 1);
-                                return JSONUtil.jsonToObject(line, ACCTFundCancelReq.class);
-                            } else {
-                                return null;
-                            }
+                    line -> {
+                        if (line != null && !line.equalsIgnoreCase("sleep 1")) {
+                            line = line.substring(head.length(), line.indexOf("}") + 1);
+                            return JSONUtil.jsonToObject(line, ACCTFundCancelReq.class);
+                        } else {
+                            return null;
                         }
                     },
-                    new WorkDetail<ACCTFundCancelReq>() {
-                        @Override
-                        void work(ACCTFundCancelReq acctFundCancelReq) {
-                            if (!acctFundCancelReq.getOriginRequestId().equals("ad62cfbf-8b76-4137-ba4c-a2d19759729d")) {
-                                acctFundCancelReqs.add(acctFundCancelReq);
-                            }
+                    acctFundCancelReq -> {
+                        if (!acctFundCancelReq.getOriginRequestId().equals("ad62cfbf-8b76-4137-ba4c-a2d19759729d")) {
+                            acctFundCancelReqs.add(acctFundCancelReq);
                         }
                     }
             ) {

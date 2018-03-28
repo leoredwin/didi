@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
  * Created by Leo on 2016/8/24.
  */
 @Service
-public abstract class FilesWorker<P> {
+public class FilesWorker<P> {
 
     private static final Logger logger = LoggerFactory.getLogger(FilesWorker.class);
 

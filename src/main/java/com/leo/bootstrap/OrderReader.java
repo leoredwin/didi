@@ -80,22 +80,14 @@ public class OrderReader {
         private void renameFile(String localFileName) {
             new FilesWorker<SiteModel>(
                     localFileName,
-                    new TransLineFunction<SiteModel>() {
-                        @Override
-                        SiteModel deal(String line) {
-                            String[] split = cutData(line);
-                            SiteModel siteModel = new SiteModel();
-                            siteModel.setAppId(split[0]);
-                            siteModel.setSite(split[1]);
-                            return siteModel;
-                        }
+                    line -> {
+                        String[] split = cutData(line);
+                        SiteModel siteModel = new SiteModel();
+                        siteModel.setAppId(split[0]);
+                        siteModel.setSite(split[1]);
+                        return siteModel;
                     },
-                    new WorkDetail<SiteModel>() {
-                        @Override
-                        void work(SiteModel siteModel) {
-                            siteModelList.add(siteModel);
-                        }
-                    }
+                    siteModel -> siteModelList.add(siteModel)
             ) {
             }.run();
         }

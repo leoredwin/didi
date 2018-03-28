@@ -87,29 +87,21 @@ public class FundChargeRepair {
         private void renameFile(String localFileName) {
             new FilesWorker<BuildRepaymentModel>(
                     localFileName,
-                    new TransLineFunction<BuildRepaymentModel>() {
-                        @Override
-                        BuildRepaymentModel deal(String line) {
-                            String[] split = cutData(line);
-                            if (split != null) {
-                                BuildRepaymentModel buildRepaymentModel = new BuildRepaymentModel();
-                                buildRepaymentModel.setAppId(split[0]);
-                                buildRepaymentModel.setProductId(split[1]);
-                                buildRepaymentModel.setFundId(split[2]);
-                                buildRepaymentModel.setRepayments(Integer.valueOf(split[3]));
-                                buildRepaymentModel.setPrincipal(new BigDecimal(split[4]));
-                                return buildRepaymentModel;
-                            } else {
-                                return null;
-                            }
+                    line -> {
+                        String[] split = cutData(line);
+                        if (split != null) {
+                            BuildRepaymentModel buildRepaymentModel = new BuildRepaymentModel();
+                            buildRepaymentModel.setAppId(split[0]);
+                            buildRepaymentModel.setProductId(split[1]);
+                            buildRepaymentModel.setFundId(split[2]);
+                            buildRepaymentModel.setRepayments(Integer.valueOf(split[3]));
+                            buildRepaymentModel.setPrincipal(new BigDecimal(split[4]));
+                            return buildRepaymentModel;
+                        } else {
+                            return null;
                         }
                     },
-                    new WorkDetail<BuildRepaymentModel>() {
-                        @Override
-                        void work(BuildRepaymentModel buildRepaymentModel) {
-                            buildRepaymentModels.add(buildRepaymentModel);
-                        }
-                    }
+                    buildRepaymentModel -> buildRepaymentModels.add(buildRepaymentModel)
             ) {
             }.run();
         }

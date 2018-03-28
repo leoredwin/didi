@@ -6,6 +6,6 @@ package com.leo.bootstrap;
  * 将一行数据 line
  * 变成一个结构体PO
  */
-public abstract class TransLineFunction<T> {
-    abstract T deal(String line);
+public interface TransLineFunction<T> {
+    T deal(String line);
 }

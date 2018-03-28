@@ -6,6 +6,6 @@ package com.leo.bootstrap;
  * 将一行数据 line
  * 变成一个结构体PO
  */
-public abstract class WorkDetail<P> {
-    abstract void work(P Object);
+public  interface WorkDetail<P> {
+    void work(P Object);
 }
